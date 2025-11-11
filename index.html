@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=yes">
+    <title>Графики мониторинга</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            border: 0;
+        }
+
+        *, *:before, *:after {
+            box-sizing: border-box;
+        }
+
+        :focus, :active {
+            outline: none;
+        }
+
+        a:focus, a:active {
+            outline: none;
+        }
+
+        nav, footer, header, aside {
+            display: block;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-size: 100%;
+            line-height: 1;
+            font-size: 14px;
+            -ms-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        input, button, textarea {
+            font-family: inherit;
+        }
+
+        input::-ms-clear {
+            display: none;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        button::-moz-focus-inner {
+            padding: 0;
+            border: 0;
+        }
+
+        a, a:visited {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: none;
+        }
+
+        ul li {
+            list-style: none;
+        }
+
+        img {
+            vertical-align: top;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-size: inherit;
+            font-weight: inherit;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        .wrapper {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #191919;
+            color: white;
+            text-align: center;
+        }
+
+        @media (orientation: landscape) {
+            .wrapper {
+                color: #fff;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            body {
+                background-color: #191919;
+                color: #fff;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 1.2em;
+            }
+            .main {
+                width: 100%;
+                height: 100%;
+            }
+            .sidebar {
+                width: 100%;
+                height: 100%;
+                display: flex;
+            }
+            .aside {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                width: 20%;
+            }
+            .aside-title-block {
+                padding: 16px;
+                border-bottom: 2px solid #fff;
+            }
+            .aside-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                padding: 10px 10px;
+            }
+            .aside-item {
+                margin-bottom: 2vh;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            .aside-item:hover {
+                transform: scale(1.1);
+            }
+            .item-block-circl {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 3em;
+                height: 3em;
+                border-radius: 50%;
+                transition: opacity 0.3s;
+            }
+            .item-block-circl.active {
+                border: 3px solid white;
+                box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            }
+            .red { background: #D81111; }
+            .green { background: #3D791D; }
+            .purple { background: #6759A3; }
+            .sky { background: #229AAF; }
+            .yellw { background: #D7BE32; }
+            .clear-color {
+                background: #881818;
+                padding: 10px;
+                border-radius: 5px;
+            }
+            .content {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            .header__container {
+                display: flex;
+                justify-content: center;
+                border: 1px solid #fff;
+            }
+            .header__right-item {
+                width: 100%;
+                border: 1px solid #fff;
+            }
+            .header__right-item h2 {
+                text-align: center;
+                padding: 15px;
+            }
+            .canvas-block {
+                width: 100%;
+                height: 70vh;
+                padding: 10px;
+                position: relative;
+            }
+            canvas {
+                width: 100%;
+                height: 100%;
+                background-color: #2d2d2d;
+                border-radius: 5px;
+                cursor: crosshair;
+            }
+            .status-indicator {
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+            .status-connected { background: #3D791D; }
+            .status-disconnected { background: #D81111; }
+            
+            /* Новые стили для управления графиком */
+            .graph-controls {
+                padding: 10px;
+                background: #2d2d2d;
+                border-top: 1px solid #444;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .timeline-controls {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex: 1;
+                position: relative;
+            }
+            
+            .timeline-slider {
+                flex: 1;
+                height: 20px;
+                -webkit-appearance: none;
+                background: #444;
+                border-radius: 10px;
+                outline: none;
+                position: relative;
+                z-index: 2;
+            }
+            
+            .timeline-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #229AAF;
+                cursor: pointer;
+                border: 2px solid white;
+                box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            }
+            
+            .timeline-slider::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #229AAF;
+                cursor: pointer;
+                border: 2px solid white;
+                box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            }
+            
+            .control-btn {
+                padding: 8px 15px;
+                background: #444;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            
+            .control-btn:hover {
+                background: #555;
+            }
+            
+            .zoom-controls {
+                display: flex;
+                gap: 5px;
+            }
+            
+            .time-info {
+                font-size: 0.9em;
+                color: #ccc;
+                min-width: 200px;
+                text-align: center;
+            }
+            
+            .graph-info {
+                display: flex;
+                justify-content: space-between;
+                padding: 5px 15px;
+                background: #2d2d2d;
+                border-top: 1px solid #444;
+                font-size: 0.9em;
+                color: #ccc;
+            }
+            
+            /* Стили для тултипа на слайдере */
+            .slider-tooltip {
+                position: absolute;
+                bottom: 35px;
+                background: rgba(0, 0, 0, 0.9);
+                border: 1px solid #555;
+                border-radius: 5px;
+                padding: 8px 12px;
+                font-size: 12px;
+                white-space: nowrap;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s;
+                z-index: 10;
+                transform: translateX(-50%);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            }
+            
+            .slider-tooltip.active {
+                opacity: 1;
+            }
+            
+            .slider-tooltip::after {
+                content: '';
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border: 5px solid transparent;
+                border-top-color: rgba(0, 0, 0, 0.9);
+            }
+            
+            .tooltip-point {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+            
+            .tooltip-value {
+                display: flex;
+                justify-content: space-between;
+                gap: 10px;
+            }
+            
+            .tooltip-label {
+                color: #ccc;
+            }
+            
+            .tooltip-data {
+                color: white;
+                font-weight: bold;
+            }
+            
+            /* Стили для тултипа на графике */
+            .graph-tooltip {
+                position: absolute;
+                background: rgba(0, 0, 0, 0.9);
+                border: 1px solid #555;
+                border-radius: 5px;
+                padding: 8px 12px;
+                font-size: 12px;
+                white-space: nowrap;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s;
+                z-index: 10;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            }
+            
+            .graph-tooltip.active {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="main">
+            <div class="sidebar">
+                <div class="aside">
+                    <div class="aside-title-block">
+                        <div class="aside-title">
+                            <h1 class="aside-title-text">
+                                Графики мониторинга
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="aside-container">
+                        <div class="aside-item" data-graph="1">
+                            <div class="item-block">
+                                <div id="btn-1" class="item-block-circl red active">
+                                    <h2>1</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="aside-item" data-graph="2">
+                            <div class="item-block">
+                                <div id="btn-2" class="item-block-circl green">
+                                    <h2>2</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="aside-item" data-graph="3">
+                            <div class="item-block">
+                                <div id="btn-3" class="item-block-circl purple">
+                                    <h2>3</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="aside-item" data-graph="4">
+                            <div class="item-block">
+                                <div id="btn-4" class="item-block-circl sky">
+                                    <h2>4</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="aside-item" data-graph="5">
+                            <div class="item-block">
+                                <div id="btn-5" class="item-block-circl yellw">
+                                    <h2>5</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="aside-item">
+                            <div class="item-block">
+                                <div id="btn-clear" class="item-block-sqr clear-color">
+                                    <h2>Очистить</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="aside-item">
+                            <div class="item-block">
+                                <div id="connection-status">
+                                    <span class="status-indicator status-connected"></span>
+                                    <span>Соединение</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="header">
+                        <div class="header__block">
+                            <div class="header__container">
+                                <div class="header__right-item">
+                                    <h2 class="numberBox"><span id="rpm">0</span> Об/мин</h2>
+                                </div>
+                                <div class="header__right-item">
+                                    <h2>Температура: <span id="temp">0</span>°C</h2> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="canvas-block">
+                        <canvas id="chart"></canvas>
+                        <div id="graph-tooltip" class="graph-tooltip"></div>
+                    </div>
+                    <div class="graph-info">
+                        <span id="data-count">Точек: 0</span>
+                        <span id="visible-range">Видимо: 0</span>
+                        <span id="current-time">Время: --:--:--</span>
+                    </div>
+                    <div class="graph-controls">
+                        <div class="timeline-controls">
+                            <div id="slider-tooltip" class="slider-tooltip"></div>
+                            <button class="control-btn" id="btn-rewind">⏮️</button>
+                            <button class="control-btn" id="btn-prev">◀️</button>
+                            <input type="range" class="timeline-slider" id="timeline-slider" min="0" max="100" value="100">
+                            <button class="control-btn" id="btn-next">▶️</button>
+                            <button class="control-btn" id="btn-live">⏭️</button>
+                        </div>
+                        <div class="zoom-controls">
+                            <button class="control-btn" id="btn-zoom-out">➖</button>
+                            <button class="control-btn" id="btn-zoom-in">➕</button>
+                            <button class="control-btn" id="btn-zoom-fit">🔍</button>
+                        </div>
+                        <div class="time-info">
+                            <span id="time-display">Режим реального времени</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        class GraphMonitor {
+            constructor() {
+                this.canvas = document.getElementById('chart');
+                this.ctx = this.canvas.getContext('2d');
+                this.canvasBlock = document.querySelector('.canvas-block');
+                
+                this.historyData = []; // Полная история данных
+                this.visibleData = []; // Данные для отображения
+                this.currentGraph = 1;
+                this.isConnected = false;
+                this.isLiveMode = true; // Режим реального времени
+                this.historyPointer = 0; // Указатель на текущую позицию в истории
+                this.zoomLevel = 1.0; // Уровень масштабирования
+                this.maxHistoryPoints = 1000; // Максимальное количество точек в истории
+                this.dataCounter = 0; // Счетчик данных для оси X (время)
+                
+                // Элементы тултипов
+                this.sliderTooltip = document.getElementById('slider-tooltip');
+                this.graphTooltip = document.getElementById('graph-tooltip');
+                
+                this.initCanvas();
+                this.bindEvents();
+                this.startMonitoring();
+            }
+            
+            initCanvas() {
+                const WIDTH = this.canvasBlock.clientWidth - 20;
+                const HEIGHT = this.canvasBlock.clientHeight - 20;
+                const PADDING = 40;
+                
+                this.DPI_WIDTH = WIDTH * 2;
+                this.DPI_HEIGHT = HEIGHT * 2;
+                this.VIEW_HEIGHT = this.DPI_HEIGHT - PADDING * 2;
+                this.VIEW_WIDTH = this.DPI_WIDTH - PADDING * 2;
+                this.PADDING = PADDING;
+                
+                this.canvas.style.width = WIDTH + 'px';
+                this.canvas.style.height = HEIGHT + 'px';
+                this.canvas.width = this.DPI_WIDTH;
+                this.canvas.height = this.DPI_HEIGHT;
+            }
+            
+            bindEvents() {
+                // Обработчики для кнопок графиков
+                document.querySelectorAll('.aside-item[data-graph]').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const graphNum = parseInt(e.currentTarget.dataset.graph);
+                        this.switchGraph(graphNum);
+                    });
+                });
+                
+                // Кнопка очистки
+                document.getElementById('btn-clear').addEventListener('click', () => {
+                    this.clearGraph();
+                });
+                
+                // Управление временной шкалой
+                const timelineSlider = document.getElementById('timeline-slider');
+                timelineSlider.addEventListener('input', (e) => {
+                    this.onTimelineChange(parseInt(e.target.value));
+                });
+                
+                // События для тултипа на слайдере
+                timelineSlider.addEventListener('mousemove', (e) => {
+                    this.showSliderTooltip(e);
+                });
+                
+                timelineSlider.addEventListener('mouseenter', () => {
+                    this.sliderTooltip.classList.add('active');
+                });
+                
+                timelineSlider.addEventListener('mouseleave', () => {
+                    this.sliderTooltip.classList.remove('active');
+                });
+                
+                document.getElementById('btn-rewind').addEventListener('click', () => {
+                    this.rewindToStart();
+                });
+                
+                document.getElementById('btn-prev').addEventListener('click', () => {
+                    this.moveBackward();
+                });
+                
+                document.getElementById('btn-next').addEventListener('click', () => {
+                    this.moveForward();
+                });
+                
+                document.getElementById('btn-live').addEventListener('click', () => {
+                    this.switchToLiveMode();
+                });
+                
+                // Управление масштабированием
+                document.getElementById('btn-zoom-in').addEventListener('click', () => {
+                    this.zoomIn();
+                });
+                
+                document.getElementById('btn-zoom-out').addEventListener('click', () => {
+                    this.zoomOut();
+                });
+                
+                document.getElementById('btn-zoom-fit').addEventListener('click', () => {
+                    this.zoomFit();
+                });
+                
+                // Обработка изменения размера окна
+                window.addEventListener('resize', () => {
+                    this.initCanvas();
+                    this.drawGraph();
+                });
+                
+                // Обработка колесика мыши для масштабирования
+                this.canvas.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    if (e.deltaY < 0) {
+                        this.zoomIn();
+                    } else {
+                        this.zoomOut();
+                    }
+                });
+                
+                // События для тултипа на графике
+                this.canvas.addEventListener('mousemove', (e) => {
+                    this.showGraphTooltip(e);
+                });
+                
+                this.canvas.addEventListener('mouseenter', () => {
+                    this.graphTooltip.classList.add('active');
+                });
+                
+                this.canvas.addEventListener('mouseleave', () => {
+                    this.graphTooltip.classList.remove('active');
+                });
+            }
+            
+            switchGraph(graphNum) {
+                this.currentGraph = graphNum;
+                
+                // Обновляем активную кнопку
+                document.querySelectorAll('.item-block-circl').forEach(circle => {
+                    circle.classList.remove('active');
+                });
+                document.getElementById(`btn-${graphNum}`).classList.add('active');
+                
+                this.drawGraph();
+            }
+            
+            clearGraph() {
+                this.historyData = [];
+                this.visibleData = [];
+                this.historyPointer = 0;
+                this.dataCounter = 0;
+                this.updateControls();
+                this.drawGraph();
+            }
+            
+            async fetchData() {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    
+                    const response = await fetch('/server.php', {
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Ошибка HTTP: ${response.status}`);
+                    }
+                    
+                    const data = await response.text();
+                    this.updateConnectionStatus(true);
+                    return data;
+                    
+                } catch (error) {
+                    this.updateConnectionStatus(false);
+                    console.error('Ошибка получения данных:', error);
+                    return null;
+                }
+            }
+            
+            updateConnectionStatus(connected) {
+                if (this.isConnected !== connected) {
+                    this.isConnected = connected;
+                    const statusElement = document.getElementById('connection-status');
+                    const indicator = statusElement.querySelector('.status-indicator');
+                    
+                    if (connected) {
+                        indicator.className = 'status-indicator status-connected';
+                        statusElement.querySelector('span:last-child').textContent = 'Соединение';
+                    } else {
+                        indicator.className = 'status-indicator status-disconnected';
+                        statusElement.querySelector('span:last-child').textContent = 'Нет соединения';
+                    }
+                }
+            }
+            
+            async processData() {
+                const data = await this.fetchData();
+                
+                if (!data) {
+                    this.generateTestData();
+                    return;
+                }
+                
+                const values = data.split(',').map(value => value.trim());
+                const revolutions = parseFloat(values[0]);
+                const temperature = parseFloat(values[1]);
+                const timestamp = Date.now();
+                
+                // Увеличиваем счетчик данных (это будет наша ось X - время/порядковый номер)
+                this.dataCounter++;
+                
+                // Добавляем данные в историю
+                const dataPoint = {
+                    x: this.dataCounter, // Используем счетчик вместо revolutions для оси X
+                    y: temperature,
+                    rpm: revolutions, // Сохраняем обороты для отображения
+                    timestamp: timestamp,
+                    time: new Date(timestamp).toLocaleTimeString()
+                };
+                
+                this.historyData.push(dataPoint);
+                
+                // Ограничиваем размер истории
+                if (this.historyData.length > this.maxHistoryPoints) {
+                    this.historyData.shift();
+                }
+                
+                // В режиме реального времени показываем последние данные
+                if (this.isLiveMode) {
+                    this.historyPointer = this.historyData.length;
+                    this.updateVisibleData();
+                }
+                
+                this.updateDisplay(values[0], values[1]);
+                this.updateControls();
+                this.drawGraph();
+            }
+            
+            generateTestData() {
+                const lastRpm = this.historyData.length > 0 ? 
+                    this.historyData[this.historyData.length - 1].rpm : 500;
+                
+                const revolutions = lastRpm + (Math.random() - 0.5) * 200;
+                const temperature = 20 + (revolutions - 500) / (10000 - 500) * 80 + (Math.random() - 0.5) * 10;
+                const timestamp = Date.now();
+                
+                // Увеличиваем счетчик данных
+                this.dataCounter++;
+                
+                const dataPoint = {
+                    x: this.dataCounter, // Используем счетчик вместо revolutions для оси X
+                    y: Math.max(0, Math.min(120, temperature)),
+                    rpm: Math.max(500, Math.min(10000, revolutions)),
+                    timestamp: timestamp,
+                    time: new Date(timestamp).toLocaleTimeString()
+                };
+                
+                this.historyData.push(dataPoint);
+                
+                if (this.historyData.length > this.maxHistoryPoints) {
+                    this.historyData.shift();
+                }
+                
+                if (this.isLiveMode) {
+                    this.historyPointer = this.historyData.length;
+                    this.updateVisibleData();
+                }
+                
+                this.updateDisplay(
+                    dataPoint.rpm.toFixed(0), 
+                    dataPoint.y.toFixed(1)
+                );
+                this.updateControls();
+                this.drawGraph();
+            }
+            
+            updateVisibleData() {
+                if (this.historyData.length === 0) {
+                    this.visibleData = [];
+                    return;
+                }
+                
+                const visiblePoints = Math.min(100, Math.floor(100 * this.zoomLevel));
+                const startIndex = Math.max(0, this.historyPointer - visiblePoints);
+                const endIndex = this.historyPointer;
+                
+                this.visibleData = this.historyData.slice(startIndex, endIndex);
+            }
+            
+            updateDisplay(rpm, temp) {
+                document.getElementById('rpm').textContent = rpm;
+                document.getElementById('temp').textContent = temp;
+            }
+            
+            updateControls() {
+                const slider = document.getElementById('timeline-slider');
+                const timeDisplay = document.getElementById('time-display');
+                const dataCount = document.getElementById('data-count');
+                const visibleRange = document.getElementById('visible-range');
+                const currentTime = document.getElementById('current-time');
+                
+                // Обновляем слайдер
+                if (this.historyData.length > 0) {
+                    const progress = (this.historyPointer / this.historyData.length) * 100;
+                    slider.value = progress;
+                } else {
+                    slider.value = 0;
+                }
+                
+                // Обновляем информацию
+                dataCount.textContent = `Точек: ${this.historyData.length}`;
+                visibleRange.textContent = `Видимо: ${this.visibleData.length}`;
+                
+                if (this.visibleData.length > 0) {
+                    const currentPoint = this.visibleData[this.visibleData.length - 1];
+                    currentTime.textContent = `Время: ${currentPoint.time}`;
+                }
+                
+                // Обновляем отображение режима
+                if (this.isLiveMode) {
+                    timeDisplay.textContent = 'Режим реального времени';
+                    timeDisplay.style.color = '#3D791D';
+                } else {
+                    timeDisplay.textContent = 'Режим истории';
+                    timeDisplay.style.color = '#D7BE32';
+                }
+            }
+            
+            // Методы управления временной шкалой
+            onTimelineChange(value) {
+                const position = value / 100;
+                this.historyPointer = Math.floor(this.historyData.length * position);
+                this.isLiveMode = (value === 100);
+                this.updateVisibleData();
+                this.drawGraph();
+                this.updateControls();
+            }
+            
+            rewindToStart() {
+                this.historyPointer = 0;
+                this.isLiveMode = false;
+                this.updateVisibleData();
+                this.drawGraph();
+                this.updateControls();
+            }
+            
+            moveBackward() {
+                const step = Math.max(1, Math.floor(this.visibleData.length * 0.1));
+                this.historyPointer = Math.max(0, this.historyPointer - step);
+                this.isLiveMode = false;
+                this.updateVisibleData();
+                this.drawGraph();
+                this.updateControls();
+            }
+            
+            moveForward() {
+                const step = Math.max(1, Math.floor(this.visibleData.length * 0.1));
+                this.historyPointer = Math.min(this.historyData.length, this.historyPointer + step);
+                this.isLiveMode = (this.historyPointer === this.historyData.length);
+                this.updateVisibleData();
+                this.drawGraph();
+                this.updateControls();
+            }
+            
+            switchToLiveMode() {
+                this.historyPointer = this.historyData.length;
+                this.isLiveMode = true;
+                this.updateVisibleData();
+                this.drawGraph();
+                this.updateControls();
+            }
+            
+            // Методы масштабирования
+            zoomIn() {
+                this.zoomLevel = Math.min(5.0, this.zoomLevel * 1.2);
+                this.updateVisibleData();
+                this.drawGraph();
+                this.updateControls();
+            }
+            
+            zoomOut() {
+                this.zoomLevel = Math.max(0.2, this.zoomLevel / 1.2);
+                this.updateVisibleData();
+                this.drawGraph();
+                this.updateControls();
+            }
+            
+            zoomFit() {
+                this.zoomLevel = 1.0;
+                this.updateVisibleData();
+                this.drawGraph();
+                this.updateControls();
+            }
+            
+            // Методы для тултипов
+            showSliderTooltip(event) {
+                if (this.historyData.length === 0) return;
+                
+                const slider = document.getElementById('timeline-slider');
+                const value = parseInt(slider.value);
+                const position = value / 100;
+                const dataIndex = Math.floor(this.historyData.length * position);
+                
+                if (dataIndex >= 0 && dataIndex < this.historyData.length) {
+                    const point = this.historyData[dataIndex];
+                    
+                    // Позиционируем тултип
+                    const sliderRect = slider.getBoundingClientRect();
+                    const percentage = value / 100;
+                    const tooltipX = sliderRect.left + (sliderRect.width * percentage);
+                    
+                    this.sliderTooltip.style.left = `${percentage * 100}%`;
+                    this.sliderTooltip.style.transform = 'translateX(-50%)';
+                    
+                    // Обновляем содержимое тултипа
+                    this.sliderTooltip.innerHTML = `
+                        <div class="tooltip-point">
+                            <div class="tooltip-value">
+                                <span class="tooltip-label">Измерение:</span>
+                                <span class="tooltip-data">${point.x}</span>
+                            </div>
+                            <div class="tooltip-value">
+                                <span class="tooltip-label">Обороты:</span>
+                                <span class="tooltip-data">${point.rpm} об/мин</span>
+                            </div>
+                            <div class="tooltip-value">
+                                <span class="tooltip-label">Температура:</span>
+                                <span class="tooltip-data">${point.y.toFixed(1)}°C</span>
+                            </div>
+                            <div class="tooltip-value">
+                                <span class="tooltip-label">Время:</span>
+                                <span class="tooltip-data">${point.time}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            showGraphTooltip(event) {
+                if (this.visibleData.length === 0) return;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                // Масштабируем координаты для DPI
+                const scaleX = this.DPI_WIDTH / rect.width;
+                const scaleY = this.DPI_HEIGHT / rect.height;
+                const canvasX = x * scaleX;
+                const canvasY = y * scaleY;
+                
+                // Вычисляем границы данных
+                const yValues = this.visibleData.map(point => point.y);
+                const xValues = this.visibleData.map(point => point.x);
+                
+                const yMin = Math.min(...yValues) - 5;
+                const yMax = Math.max(...yValues) + 5;
+                const xMin = Math.min(...xValues);
+                const xMax = Math.max(...xValues);
+                
+                const yRatio = this.VIEW_HEIGHT / (yMax - yMin || 1);
+                const xRatio = this.VIEW_WIDTH / (xMax - xMin || 1);
+                
+                // Преобразуем координаты канваса в данные
+                const dataX = xMin + (canvasX - this.PADDING) / xRatio;
+                const dataY = yMax - (canvasY - this.PADDING) / yRatio;
+                
+                // Ищем ближайшую точку данных
+                let closestPoint = null;
+                let minDistance = Infinity;
+                
+                for (const point of this.visibleData) {
+                    const pointX = this.PADDING + (point.x - xMin) * xRatio;
+                    const pointY = this.DPI_HEIGHT - this.PADDING - (point.y - yMin) * yRatio;
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(canvasX - pointX, 2) + Math.pow(canvasY - pointY, 2)
+                    );
+                    
+                    if (distance < minDistance && distance < 30) { // 30px радиус поиска
+                        minDistance = distance;
+                        closestPoint = point;
+                    }
+                }
+                
+                if (closestPoint) {
+                    // Позиционируем тултип
+                    this.graphTooltip.style.left = `${x + 10}px`;
+                    this.graphTooltip.style.top = `${y - 10}px`;
+                    
+                    // Обновляем содержимое тултипа
+                    this.graphTooltip.innerHTML = `
+                        <div class="tooltip-point">
+                            <div class="tooltip-value">
+                                <span class="tooltip-label">Измерение:</span>
+                                <span class="tooltip-data">${closestPoint.x}</span>
+                            </div>
+                            <div class="tooltip-value">
+                                <span class="tooltip-label">Обороты:</span>
+                                <span class="tooltip-data">${closestPoint.rpm} об/мин</span>
+                            </div>
+                            <div class="tooltip-value">
+                                <span class="tooltip-label">Температура:</span>
+                                <span class="tooltip-data">${closestPoint.y.toFixed(1)}°C</span>
+                            </div>
+                            <div class="tooltip-value">
+                                <span class="tooltip-label">Время:</span>
+                                <span class="tooltip-data">${closestPoint.time}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Рисуем маркер на ближайшей точке
+                    this.drawGraphWithMarker(closestPoint, xMin, yMin, xRatio, yRatio);
+                } else {
+                    this.drawGraph();
+                }
+            }
+            
+            drawGraphWithMarker(markerPoint, xMin, yMin, xRatio, yRatio) {
+                this.drawGraph();
+                
+                if (!markerPoint) return;
+                
+                const ctx = this.ctx;
+                const canvasX = this.PADDING + (markerPoint.x - xMin) * xRatio;
+                const canvasY = this.DPI_HEIGHT - this.PADDING - (markerPoint.y - yMin) * yRatio;
+                
+                // Рисуем маркер
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                ctx.strokeStyle = this.getGraphColor();
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, 6, 0, 2 * Math.PI);
+                ctx.stroke();
+                
+                // Рисуем перекрестие
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                
+                // Вертикальная линия
+                ctx.beginPath();
+                ctx.moveTo(canvasX, this.PADDING);
+                ctx.lineTo(canvasX, this.DPI_HEIGHT - this.PADDING);
+                ctx.stroke();
+                
+                // Горизонтальная линия
+                ctx.beginPath();
+                ctx.moveTo(this.PADDING, canvasY);
+                ctx.lineTo(this.DPI_WIDTH - this.PADDING, canvasY);
+                ctx.stroke();
+                
+                ctx.setLineDash([]);
+            }
+            
+            drawGraph() {
+                const ctx = this.ctx;
+                ctx.clearRect(0, 0, this.DPI_WIDTH, this.DPI_HEIGHT);
+                
+                if (this.visibleData.length === 0) return;
+                
+                // Вычисляем границы данных
+                const yValues = this.visibleData.map(point => point.y);
+                const xValues = this.visibleData.map(point => point.x);
+                
+                const yMin = Math.min(...yValues) - 5;
+                const yMax = Math.max(...yValues) + 5;
+                const xMin = Math.min(...xValues);
+                const xMax = Math.max(...xValues);
+                
+                const yRatio = this.VIEW_HEIGHT / (yMax - yMin || 1);
+                const xRatio = this.VIEW_WIDTH / (xMax - xMin || 1);
+                
+                // Отрисовка сетки и осей
+                this.drawGrid(xMin, xMax, yMin, yMax);
+                
+                // Отрисовка графика
+                this.drawDataLine(xMin, yMin, xRatio, yRatio);
+                
+                // Отрисовка маркера текущей позиции
+                if (!this.isLiveMode && this.visibleData.length > 0) {
+                    this.drawPositionMarker(xMin, yMin, xRatio, yRatio);
+                }
+            }
+            
+            drawGrid(xMin, xMax, yMin, yMax) {
+                const ctx = this.ctx;
+                const ROWS_COUNT = 10;
+                const COLS_COUNT = 10;
+                
+                ctx.strokeStyle = '#444';
+                ctx.fillStyle = "white";
+                ctx.font = 'normal 20px Arial, sans-serif';
+                ctx.lineWidth = 1;
+                
+                // Горизонтальные линии (температура)
+                const stepY = this.VIEW_HEIGHT / ROWS_COUNT;
+                const textStepY = (yMax - yMin) / ROWS_COUNT;
+                
+                for (let i = 0; i <= ROWS_COUNT; i++) {
+                    const y = stepY * i;
+                    const text = (yMax - textStepY * i).toFixed(1);
+                    
+                    ctx.fillText(text + "°C", 5, y + this.PADDING - 5);
+                    ctx.beginPath();
+                    ctx.moveTo(this.PADDING, y + this.PADDING);
+                    ctx.lineTo(this.DPI_WIDTH - this.PADDING, y + this.PADDING);
+                    ctx.stroke();
+                }
+                
+                // Вертикальные линии (время/порядковый номер)
+                const stepX = this.VIEW_WIDTH / COLS_COUNT;
+                const textStepX = (xMax - xMin) / COLS_COUNT;
+                
+                for (let i = 0; i <= COLS_COUNT; i++) {
+                    const x = stepX * i;
+                    const text = Math.floor(xMin + textStepX * i);
+                    
+                    ctx.fillText(text, x + this.PADDING - 10, this.DPI_HEIGHT - 10);
+                    ctx.beginPath();
+                    ctx.moveTo(x + this.PADDING, this.PADDING);
+                    ctx.lineTo(x + this.PADDING, this.DPI_HEIGHT - this.PADDING);
+                    ctx.stroke();
+                }
+                
+                // Подписи осей
+                ctx.fillStyle = "white";
+                ctx.font = 'bold 16px Arial, sans-serif';
+                ctx.fillText("Температура (°C)", 10, 20);
+                ctx.fillText("Время / № измерения", this.DPI_WIDTH - 150, this.DPI_HEIGHT - 10);
+            }
+            
+            drawDataLine(xMin, yMin, xRatio, yRatio) {
+                const ctx = this.ctx;
+                
+                ctx.beginPath();
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = this.getGraphColor();
+                
+                const firstPoint = this.visibleData[0];
+                const startX = this.PADDING + (firstPoint.x - xMin) * xRatio;
+                const startY = this.DPI_HEIGHT - this.PADDING - (firstPoint.y - yMin) * yRatio;
+                
+                ctx.moveTo(startX, startY);
+                
+                for (const point of this.visibleData) {
+                    const canvasX = this.PADDING + (point.x - xMin) * xRatio;
+                    const canvasY = this.DPI_HEIGHT - this.PADDING - (point.y - yMin) * yRatio;
+                    ctx.lineTo(canvasX, canvasY);
+                }
+                
+                ctx.stroke();
+                
+                // Рисуем точки данных
+                ctx.fillStyle = this.getGraphColor();
+                for (const point of this.visibleData.slice(-10)) {
+                    const canvasX = this.PADDING + (point.x - xMin) * xRatio;
+                    const canvasY = this.DPI_HEIGHT - this.PADDING - (point.y - yMin) * yRatio;
+                    ctx.beginPath();
+                    ctx.arc(canvasX, canvasY, 4, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            }
+            
+            drawPositionMarker(xMin, yMin, xRatio, yRatio) {
+                if (this.visibleData.length === 0) return;
+                
+                const ctx = this.ctx;
+                const currentPoint = this.visibleData[this.visibleData.length - 1];
+                
+                const canvasX = this.PADDING + (currentPoint.x - xMin) * xRatio;
+                const canvasY = this.DPI_HEIGHT - this.PADDING - (currentPoint.y - yMin) * yRatio;
+                
+                // Рисуем маркер текущей позиции
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, 8, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                ctx.strokeStyle = this.getGraphColor();
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, 8, 0, 2 * Math.PI);
+                ctx.stroke();
+                
+                // Подпись с значениями
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px Arial, sans-serif';
+                ctx.fillText(
+                    `№${currentPoint.x}, ${currentPoint.y.toFixed(1)}°C, ${currentPoint.rpm} об/мин`, 
+                    canvasX + 15, 
+                    canvasY - 15
+                );
+            }
+            
+            getGraphColor() {
+                const colors = {
+                    1: '#ff0000',
+                    2: '#00ff00', 
+                    3: '#6759A3',
+                    4: '#229AAF',
+                    5: '#D7BE32'
+                };
+                return colors[this.currentGraph] || '#ff0000';
+            }
+            
+            startMonitoring() {
+                // Запускаем обновление данных каждые 100ms
+                setInterval(() => {
+                    this.processData();
+                }, 100);
+                
+                // Первоначальная отрисовка
+                this.drawGraph();
+            }
+        }
+        
+        // Инициализация приложения когда DOM загружен
+        document.addEventListener('DOMContentLoaded', () => {
+            new GraphMonitor();
+        });
+    </script>
+</body>
+</html>
